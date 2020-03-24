@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# git hook to run a command after `git pull` if a specified file was changed
+# Run `chmod +x post-merge` to make it executable then put it into `.git/hooks/`.
+
+echo "\n==================== post-merge hook ===================="
+
+changed_files="$(git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD)"
+update_command="conda env update --file env.yml"
+env_yaml_file="env.yml"
+
+file_changed=$(echo "$changed_files" | grep --quiet "$env_yaml_file")
+
+if [ file_changed ]; then
+	read -p "You have pulled a new version of $env_yaml_file. Do you want to update your conda environment(y/n)? " confirmation
+	if [[ $confirmation =~ ^[Yy]$ ]]; then
+		echo "Updating the Conda environment: running $update_command"
+		$update_command
+	else
+		echo "Skipped updating conda environment. You can do that manually by running '$update_command'"
+	fi
+fi
