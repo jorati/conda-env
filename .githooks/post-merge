@@ -9,6 +9,8 @@ changed_files="$(git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD)"
 update_command="conda env update --file env.yml"
 env_yaml_file="env.yml"
 
+exec < /dev/tty
+
 if [ $(echo "$changed_files" | grep "$env_yaml_file") ]; then
 	read -p "You have pulled a new version of $env_yaml_file. Do you want to update your conda environment(y/n)? " confirmation
 	if [[ $confirmation =~ ^[Yy]$ ]]; then
@@ -18,3 +20,5 @@ if [ $(echo "$changed_files" | grep "$env_yaml_file") ]; then
 		echo "Skipped updating conda environment. You can do that manually by running '$update_command'"
 	fi
 fi
+
+exec <&-
